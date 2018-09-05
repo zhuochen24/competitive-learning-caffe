@@ -1,0 +1,254 @@
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  transform_param {
+    crop_size: 227
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+  }
+  data_param {
+    source: "/home/zhuo/caffe/examples/imagenet/ilsvrc12_train_lmdb"
+    batch_size: 25
+    backend: LMDB
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 3
+    stride: 2
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "conv1"
+  top: "conv1"
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fire2_squeeze1x1"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "fire2_squeeze1x1"
+  convolution_param {
+    num_output: 16
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire2_relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire2_squeeze1x1"
+  top: "fire2_squeeze1x1"
+}
+layer {
+  name: "fire2_expand1x1"
+  type: "Convolution"
+  bottom: "fire2_squeeze1x1"
+  top: "fire2_expand1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire2_relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire2_expand1x1"
+  top: "fire2_expand1x1"
+}
+layer {
+  name: "fire2_expand3x3"
+  type: "Convolution"
+  bottom: "fire2_squeeze1x1"
+  top: "fire2_expand3x3"
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire2_relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire2_expand3x3"
+  top: "fire2_expand3x3"
+}
+layer {
+  name: "fire2_concat"
+  type: "Concat"
+  bottom: "fire2_expand1x1"
+  bottom: "fire2_expand3x3"
+  top: "fire2_concat"
+}
+layer {
+  name: "fire3_squeeze1x1"
+  type: "Convolution"
+  bottom: "fire2_concat"
+  top: "fire3_squeeze1x1"
+  convolution_param {
+    num_output: 16
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire3_relu_squeeze1x1"
+  type: "ReLU"
+  bottom: "fire3_squeeze1x1"
+  top: "fire3_squeeze1x1"
+}
+layer {
+  name: "fire3_expand1x1"
+  type: "Convolution"
+  bottom: "fire3_squeeze1x1"
+  top: "fire3_expand1x1"
+  convolution_param {
+    num_output: 64
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire3_relu_expand1x1"
+  type: "ReLU"
+  bottom: "fire3_expand1x1"
+  top: "fire3_expand1x1"
+}
+layer {
+  name: "fire3_expand3x3"
+  type: "Convolution"
+  bottom: "fire3_squeeze1x1"
+  top: "fire3_expand3x3"
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire3_relu_expand3x3"
+  type: "ReLU"
+  bottom: "fire3_expand3x3"
+  top: "fire3_expand3x3"
+}
+layer {
+  name: "fire3_concat"
+  type: "Concat"
+  bottom: "fire3_expand1x1"
+  bottom: "fire3_expand3x3"
+  top: "fire3_concat"
+}
+layer {
+  name: "pool3"
+  type: "Pooling"
+  bottom: "fire3_concat"
+  top: "pool3"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "fire4_squeeze1x1_cluster"
+  type: "Convolution"
+  bottom: "pool3"
+  top: "fire4_squeeze1x1_cluster"
+  convolution_param {
+    num_output: 8
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire4_relu_squeeze1x1_cluster"
+  type: "ReLU"
+  bottom: "fire4_squeeze1x1_cluster"
+  top: "fire4_squeeze1x1_cluster"
+}
+layer {
+  name: "fire4_expand1x1_cluster"
+  type: "Convolution"
+  bottom: "fire4_squeeze1x1_cluster"
+  top: "fire4_expand1x1_cluster"
+  convolution_param {
+    num_output: 32
+    kernel_size: 1
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire4_relu_expand1x1_cluster"
+  type: "ReLU"
+  bottom: "fire4_expand1x1_cluster"
+  top: "fire4_expand1x1_cluster"
+}
+layer {
+  name: "fire4_expand3x3_cluster"
+  type: "Convolution"
+  bottom: "fire4_squeeze1x1_cluster"
+  top: "fire4_expand3x3_cluster"
+  convolution_param {
+    num_output: 32
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "fire4_relu_expand3x3_cluster"
+  type: "ReLU"
+  bottom: "fire4_expand3x3_cluster"
+  top: "fire4_expand3x3_cluster"
+}
+layer {
+  name: "fire4_concat_cluster"
+  type: "Concat"
+  bottom: "fire4_expand1x1_cluster"
+  bottom: "fire4_expand3x3_cluster"
+  top: "fire4_concat_cluster"
+}

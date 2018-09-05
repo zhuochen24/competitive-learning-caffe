@@ -1,0 +1,456 @@
+name: "LeNet_HCNN"
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "/home/zhuo/caffe/examples/mnist/mnist_train_lmdb"
+    batch_size: 500
+    backend: LMDB
+  }
+}
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "/home/zhuo/caffe/examples/mnist/mnist_test_lmdb"
+    batch_size: 100
+    backend: LMDB
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 20
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "ip1/b0"
+  type: "InnerProduct"
+  bottom: "pool2"
+  top: "ip1/b0"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1/b0"
+  type: "ReLU"
+  bottom: "ip1/b0"
+  top: "ip1/b0"
+}
+layer {
+  name: "ip2/b0"
+  type: "InnerProduct"
+  bottom: "ip1/b0"
+  top: "ip2/b0"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "smax/b0"
+  type: "Softmax"
+  bottom: "ip2/b0"
+  top: "smax/b0"
+}
+#layer {
+#  name: "neg/smax/b0"
+#  type: "Python"
+#  bottom: "label"
+#  top: "neg/smax/b0"
+#  python_param{
+#    module: "negativate"
+#    layer: "NegativeLayer"
+#  }
+#}
+#layer {
+#  name: "smax/diff/b0"
+#  type: "Eltwise"
+#  bottom: "smax/b0"
+#  bottom: "neg/smax/b0"
+#  top: "smax/diff/b0"
+#}
+#layer {
+#  name: "smax/prod/b0"
+#  type: "Eltwise"
+#  bottom: "smax/diff/b0"
+#  bottom: "smax/diff/b0"
+#  top: "smax/prod/b0"
+#  eltwise_param {
+#    operation: 0
+#  }
+#}
+#layer {
+#  name: "reduce/b0"
+#  type: "Reduction"
+#  bottom: "smax/prod/b0"
+#  top: "reduce/b0"
+#  reduction_param {
+#    axis: 1
+#  }
+#}    
+#layer {
+#  name: "loss/b0"
+#  type: "Reshape"
+#  bottom: "reduce/b0"
+#  top: "loss/b0"
+#  reshape_param {
+#    shape {
+#    dim: 0
+#    dim: -1
+#}
+#  }
+#}    
+
+
+# branch 1
+layer {
+  name: "ip1/b1"
+  type: "InnerProduct"
+  bottom: "pool2"
+  top: "ip1/b1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1/b1"
+  type: "ReLU"
+  bottom: "ip1/b1"
+  top: "ip1/b1"
+}
+layer {
+  name: "ip2/b1"
+  type: "InnerProduct"
+  bottom: "ip1/b1"
+  top: "ip2/b1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "smax/b1"
+  type: "Softmax"
+  bottom: "ip2/b1"
+  top: "smax/b1"
+}
+#layer {
+#  name: "neg/smax/b1"
+#  type: "Python"
+#  bottom: "label"
+#  top: "neg/smax/b1"
+#  python_param{
+#    module: "negativate"
+#    layer: "NegativeLayer"
+#  }
+#}
+#layer {
+#  name: "smax/diff/b1"
+#  type: "Eltwise"
+#  bottom: "smax/b1"
+#  bottom: "neg/smax/b1"
+#  top: "smax/diff/b1"
+#}
+#layer {
+#  name: "smax/prod/b1"
+#  type: "Eltwise"
+#  bottom: "smax/diff/b1"
+#  bottom: "smax/diff/b1"
+#  top: "smax/prod/b1"
+#  eltwise_param {
+#    operation: 0
+#  }
+#}
+#layer {
+#  name: "reduce/b1"
+#  type: "Reduction"
+#  bottom: "smax/prod/b1"
+#  top: "reduce/b1"
+#  reduction_param {
+#    axis: 1
+#  }
+#}    
+#layer {
+#  name: "loss/b1"
+#  type: "Reshape"
+#  bottom: "reduce/b1"
+#  top: "loss/b1"
+#  reshape_param {
+#    shape {
+#    dim: 0
+#    dim: -1
+#    }
+#  }
+#}    
+#layer {
+#  name: "loss/concat"
+#  type: "Concat"
+#  bottom: "loss/b0"
+#  bottom: "loss/b1"
+#  top: "loss/concat"
+#}
+layer {
+  name: "smax/b0/reshape"
+  top: "smax/b0/reshape"
+  type: "Reshape"
+  bottom: "smax/b0"
+  reshape_param{
+    shape{
+     dim:0
+     dim: 1
+     dim: -1
+    }
+  }
+}
+layer {
+  name: "smax/b1/reshape"
+  top: "smax/b1/reshape"
+  type: "Reshape"
+  bottom: "smax/b1"
+  reshape_param{
+    shape{
+     dim:0
+     dim: 1
+     dim: -1
+    }
+  }
+}
+layer {
+  name: "out/concat"
+  type: "Concat"
+  bottom: "smax/b0/reshape"
+  bottom: "smax/b1/reshape"
+  top: "out/concat"
+}
+
+### branch classifier
+layer {
+  name: "ip1/bclass"
+  type: "InnerProduct"
+  bottom: "pool2"
+  top: "ip1/bclass"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1/bclass"
+  type: "ReLU"
+  bottom: "ip1/bclass"
+  top: "ip1/bclass"
+}
+layer {
+  name: "ip2/bclass"
+  type: "InnerProduct"
+  bottom: "ip1/bclass"
+  top: "ip2/bclass"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 2
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "smax/bclass"
+  type: "Softmax"
+  bottom: "ip2/bclass"
+  top: "smax/bclass"
+}
+
+##################################
+# outputs and loss
+################################
+layer {
+  name: "stochout"
+  top: "stochout"
+  type: "Python"
+  bottom: "out/concat"
+  bottom: "smax/bclass"
+  python_param{
+    module: "stoch_output"
+    layer: "StochOutLayer"
+  }
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "stochout"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "stochloss"
+  type: "Python"
+  bottom: "out/concat"
+  bottom: "label"
+  bottom: "smax/bclass"
+  top: "stochloss"
+  python_param{
+    module: "stoch_loss"
+    layer: "StochLossLayer"
+  }
+}
+layer {
+  name: "loss"
+  top: "loss"
+  type: "Reduction"
+  bottom: "stochloss"
+  reduction_param{
+    operation: 4
+  }
+  loss_weight: 1
+}
